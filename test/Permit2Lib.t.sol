@@ -132,25 +132,6 @@ contract Permit2LibTest is Test, PermitSignature, GasSnapshot {
         token.permit(PK_OWNER, address(0xB00B), 1e18, block.timestamp, v, r, s);
     }
 
-    function testOZSafePermit() public {
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            PK,
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    TOKEN_DOMAIN_SEPARATOR,
-                    keccak256(
-                        abi.encode(
-                            PERMIT_TYPEHASH, PK_OWNER, address(0xB00B), 1e18, token.nonces(PK_OWNER), block.timestamp
-                        )
-                    )
-                )
-            )
-        );
-
-        SafeERC20.safePermit(IERC20Permit(address(token)), PK_OWNER, address(0xB00B), 1e18, block.timestamp, v, r, s);
-    }
-
     function testPermit2() public {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             PK,
@@ -442,32 +423,6 @@ contract Permit2LibTest is Test, PermitSignature, GasSnapshot {
     /*//////////////////////////////////////////////////////////////
                           END TO END BENCHMARKS
     //////////////////////////////////////////////////////////////*/
-
-    function testOZSafePermitPlusOZSafeTransferFrom() public {
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            PK,
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    TOKEN_DOMAIN_SEPARATOR,
-                    keccak256(
-                        abi.encode(
-                            PERMIT_TYPEHASH, PK_OWNER, address(0xB00B), 1e18, token.nonces(PK_OWNER), block.timestamp
-                        )
-                    )
-                )
-            )
-        );
-
-        vm.startPrank(address(0xB00B));
-
-        snapStart("safePermit + safeTransferFrom with an EIP-2612 native token");
-
-        SafeERC20.safePermit(IERC20Permit(address(token)), PK_OWNER, address(0xB00B), 1e18, block.timestamp, v, r, s);
-        SafeERC20.safeTransferFrom(IERC20(address(token)), PK_OWNER, address(0xB00B), 1e18);
-
-        snapEnd();
-    }
 
     function testPermit2PlusTransferFrom2() public {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
